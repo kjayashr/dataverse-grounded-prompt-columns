@@ -40,6 +40,23 @@ _REL_SOURCES = [
 ]
 
 
+# The real prompt from the Dataverse prompt column (model gpt-4.1-mini), verbatim.
+PROMPT_COLUMN = (
+    f"Write a concise, two-sentence renewal risk summary for the account {ACCOUNT}. "
+    f"Name one likely renewal risk and recommend one next step. Keep it under 40 words."
+)
+
+
+def _prompt(how, sources):
+    if not sources:
+        body = "(nothing retrieved, so the model has only the account name to go on)"
+    else:
+        body = "\n".join(f"[{i}] {s['type']}: {s['label']} - {s['meta']}"
+                         for i, s in enumerate(sources, 1))
+    return (f"{PROMPT_COLUMN}\n\nGROUNDING CONTEXT (retrieved by {how}):\n{body}"
+            f"\n\n[prompt column model: gpt-4.1-mini]")
+
+
 def get_semantic(org_base):
     def notes():
         return [{"type": "note", "label": n["label"], "meta": n["meta"],
@@ -48,10 +65,7 @@ def get_semantic(org_base):
     def rel():
         return [{**s, "url": link(org_base, s["type"], s["id"])} for s in _REL_SOURCES]
 
-    return {
-        "account": ACCOUNT,
-        "account_url": link(org_base, "account", ACCOUNT_ID),
-        "tiers": [
+    tiers = [
             {"key": "keyword", "title": "Keyword search",
              "how": "Search the notes for the words “risk”, “churn”, “renewal”",
              "found": "0 of 3 notes", "verdict": "none", "verdict_label": "No risk detected",
@@ -74,7 +88,14 @@ def get_semantic(org_base):
                         "frozen, and three weeks of unanswered outreach. The verdict flips to high "
                         "risk. Recommend exec escalation.",
              "sources": notes()},
-        ],
+    ]
+    for t in tiers:
+        t["prompt"] = _prompt(t["how"], t["sources"])
+    return {
+        "account": ACCOUNT,
+        "account_url": link(org_base, "account", ACCOUNT_ID),
+        "prompt_column": PROMPT_COLUMN,
+        "tiers": tiers,
         "reversal": "Same account. The structured data said low risk. Semantic search read the "
                     "notes and caught the churn signal that flips it to high risk.",
     }

@@ -53,6 +53,10 @@
   .src .sm{font-size:11px;color:var(--ink-2);margin:2px 0 0}
   .src .go{margin-left:auto;align-self:center;color:var(--accent);font-size:11px;white-space:nowrap}
   .none-src{font-size:12.5px;color:var(--faint);font-style:italic}
+  .promptbox{margin-top:14px;border-top:1px solid var(--border);padding-top:10px}
+  .promptbox>summary{cursor:pointer;font-size:12px;color:var(--accent);list-style:none}
+  .promptbox>summary::-webkit-details-marker{display:none}
+  .promptbox pre{white-space:pre-wrap;background:var(--shade);border:1px solid var(--border);color:var(--ink);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11.5px;line-height:1.5;padding:12px 14px;border-radius:4px;margin:10px 0 0;overflow-x:auto}
 
   .reversal{margin-top:22px;background:linear-gradient(90deg,var(--good-bg),#fff 45%,var(--crit-bg));border:1px solid var(--border);border-radius:4px;padding:18px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
   .reversal .chip{font-weight:700;font-size:14px;padding:6px 12px;border-radius:4px;white-space:nowrap}
@@ -112,7 +116,9 @@
       '<p class="how">'+esc(t.how)+'</p>'+
       '<span class="found">'+esc(t.found)+'</span></div>'+
       '<div class="tb"><div class="verdict '+verdictClass(t.verdict)+'">'+esc(t.verdict_label)+'</div>'+
-      '<div class="summary">'+esc(t.summary)+'</div>'+srcs+'</div></div>';
+      '<div class="summary">'+esc(t.summary)+'</div>'+srcs+
+      '<details class="promptbox"><summary>▸ Show the prompt sent to the model</summary><pre>'+esc(t.prompt)+'</pre></details>'+
+      '</div></div>';
   }
 
   async function load(){
