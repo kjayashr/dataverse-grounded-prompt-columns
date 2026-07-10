@@ -101,6 +101,38 @@ examples/
   grounded_prompt_column.py
 ```
 
+## Hosting: Azure Container Apps + a Dynamics-themed UI
+
+A deployable web version lives in `web/` (FastAPI + uvicorn, Python 3.12, matching
+the team's container convention: single-stage `python:3.12-slim`, non-root, port
+8000). It serves a **Dynamics 365 Sales Hub themed UI** (Unified Interface theme:
+`#002050` navbar, `#1160B7` accent, Segoe UI) and a `/api/accounts` endpoint.
+
+- **Mock mode** (default): serves the captured real-data snapshot, no credentials.
+- **Live mode** (`GPC_MODE=live`): queries Dataverse via a client-credentials app
+  registration (needs a Dataverse application user + security role) and returns
+  fresh grounded, cited records. Citations deep-link to the real records.
+
+Run locally:
+
+```bash
+cd web
+python -m venv .venv && .venv/bin/pip install -r requirements.txt
+.venv/bin/uvicorn app.main:app --port 8000    # http://127.0.0.1:8000
+```
+
+Deploy to Azure Container Apps (build in ACR, imperative `az containerapp`):
+
+```bash
+cp deploy/.env.example deploy/.env            # set GPC_MODE, DATAVERSE_URL, AZURE_* for live
+RG=gpc-rg ACR=youracr ENVNAME=gpc-env deploy/deploy.sh
+```
+
+Note: the team's repos have no prior Entra/managed-identity precedent, so live
+mode introduces `azure-identity` (client-credentials). For real per-user security
+trimming, front it with Entra Easy Auth + on-behalf-of so each viewer's own
+permissions apply.
+
 ## Status
 
 Prototype. Mock mode is fully runnable today. Live mode is wired against public

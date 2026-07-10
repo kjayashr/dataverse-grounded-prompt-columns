@@ -1,0 +1,8 @@
+fastapi>=0.110,<0.116
+uvicorn[standard]>=0.28,<0.31
+pydantic>=2.6,<3.0
+pydantic-settings>=2.2,<3.0
+httpx>=0.27
+# Only needed for GPC_MODE=live (client-credentials token to Dataverse).
+# No existing Entra/azure-identity precedent in the team's repos; introduced here.
+azure-identity>=1.15

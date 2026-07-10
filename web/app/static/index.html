@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sales Hub | Accounts</title>
+<style>
+  :root{
+    --navbar:#002050; --accent:#1160B7; --accent-dk:#0d4f95; --shelf:#DFE2E8;
+    --border:#e1dfdd; --border-2:#cccccc; --shade:#f3f2f1; --hover:#D7EBF9; --selected:#B1D6F0;
+    --ink:#201f1e; --ink-2:#605e5c; --faint:#a19f9d; --paper:#faf9f8; --surface:#ffffff;
+    --good:#107C10; --good-bg:#dff6dd; --warn:#815500; --warn-bg:#fff4ce; --crit:#a4262c; --crit-bg:#fde7e9;
+    --sans:"Segoe UI","Segoe UI Web (West European)",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;font-family:var(--sans);color:var(--ink);background:var(--paper);font-size:14px;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  button{font-family:inherit}
+
+  /* App header (navbar) */
+  .appbar{height:48px;background:var(--navbar);color:#fff;display:flex;align-items:center;gap:0;padding:0 8px;position:sticky;top:0;z-index:20}
+  .appbar .ico{width:40px;height:48px;display:flex;align-items:center;justify-content:center;color:#fff;opacity:.92;cursor:pointer}
+  .appbar .ico:hover{background:rgba(255,255,255,.08)}
+  .appbar .app{display:flex;align-items:center;gap:10px;padding:0 8px;font-size:15px;font-weight:600;white-space:nowrap}
+  .appbar .app .sep{width:1px;height:20px;background:rgba(255,255,255,.35)}
+  .appbar .app .sub{font-weight:400;opacity:.9}
+  .appbar .search{flex:0 1 460px;margin:0 16px;background:#fff;border-radius:2px;height:32px;display:flex;align-items:center;padding:0 10px;color:var(--ink-2);font-size:13px;min-width:120px}
+  .appbar .grow{flex:1}
+  .appbar .right{display:flex;align-items:center}
+  .appbar .avatar{width:30px;height:30px;border-radius:50%;background:#3a6bbf;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;margin:0 8px}
+
+  .layout{display:flex;height:calc(100vh - 48px)}
+
+  /* Site map */
+  .sitemap{width:224px;flex:none;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding-top:6px}
+  .sm-search{margin:8px 12px;height:30px;border:1px solid var(--border-2);border-radius:2px;display:flex;align-items:center;padding:0 8px;color:var(--faint);font-size:12px}
+  .sm-item{display:flex;align-items:center;gap:10px;height:36px;padding:0 12px 0 10px;color:var(--ink);cursor:pointer;font-size:14px;border-left:3px solid transparent}
+  .sm-item:hover{background:var(--shade)}
+  .sm-item.on{background:var(--hover);border-left-color:var(--accent);font-weight:600}
+  .sm-item .g{width:18px;height:18px;flex:none;opacity:.8}
+  .sm-group{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--faint);padding:12px 12px 4px}
+  .sm-foot{margin-top:auto;border-top:1px solid var(--border);padding:10px 12px;font-size:13px;color:var(--ink-2);display:flex;align-items:center;gap:8px}
+
+  .main{flex:1;display:flex;flex-direction:column;min-width:0}
+
+  /* Command bar */
+  .cmdbar{height:44px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 12px;gap:2px}
+  .cmd{height:40px;display:inline-flex;align-items:center;gap:7px;padding:0 10px;background:transparent;border:0;color:var(--ink);font-size:14px;cursor:pointer;border-radius:2px}
+  .cmd:hover{background:var(--shade)}
+  .cmd .g{width:16px;height:16px}
+  .cmd:disabled{color:var(--faint);cursor:not-allowed}
+  .cmd .car{opacity:.7;font-size:11px}
+  .cbar-sep{width:1px;height:22px;background:var(--border);margin:0 6px}
+  .grow{flex:1}
+  .seg{display:inline-flex;border:1px solid var(--border-2);border-radius:2px;overflow:hidden;margin-right:4px}
+  .seg button{border:0;background:#fff;color:var(--ink-2);font-size:13px;padding:6px 12px;cursor:pointer}
+  .seg button.on{background:var(--accent);color:#fff;font-weight:600}
+  .modechip{font-size:11px;color:var(--ink-2);border:1px solid var(--border-2);border-radius:10px;padding:2px 9px;margin-left:6px}
+
+  /* View header */
+  .viewhead{padding:12px 16px 8px;display:flex;align-items:baseline;gap:8px}
+  .viewhead h1{font-size:20px;font-weight:600;margin:0;letter-spacing:-.01em}
+  .viewhead .car{color:var(--ink-2);font-size:12px}
+  .viewhead .crumb{font-size:12px;color:var(--ink-2)}
+
+  /* Grid */
+  .gridwrap{flex:1;overflow:auto;padding:0 16px 20px}
+  table{border-collapse:collapse;width:100%;min-width:900px;background:var(--surface);border:1px solid var(--border)}
+  thead th{position:sticky;top:0;background:var(--surface);text-align:left;font-size:13px;font-weight:600;color:var(--ink);
+    padding:9px 12px;border-bottom:1px solid var(--border-2);white-space:nowrap;z-index:2}
+  thead th.ai{color:var(--accent)}
+  thead th .sortcar{color:var(--faint);font-size:10px;margin-left:4px}
+  thead th .spark{color:#8661c5;margin-right:4px}
+  tbody td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top;font-size:14px}
+  tbody tr:hover{background:var(--hover)}
+  .chk{width:16px;height:16px;border:1px solid var(--border-2);border-radius:2px;display:inline-block}
+  td.chkcell{width:36px}
+  .acctlink{font-weight:600}
+  .num{font-variant-numeric:tabular-nums;white-space:nowrap}
+  .riskcell{min-width:360px;max-width:520px}
+  .riskrow{display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap}
+  .pill{font-size:11px;font-weight:600;padding:2px 8px;border-radius:2px}
+  .pill.low{background:var(--good-bg);color:var(--good)}
+  .pill.medium{background:var(--warn-bg);color:var(--warn)}
+  .pill.high{background:var(--crit-bg);color:var(--crit)}
+  .summary{color:var(--ink);line-height:1.45}
+  .srcbtn{margin-top:6px;background:transparent;border:0;color:var(--accent);font-size:13px;cursor:pointer;padding:0;display:inline-flex;align-items:center;gap:5px}
+  .srcbtn:hover{text-decoration:underline}
+  .srcbtn.none{color:var(--faint);cursor:default}
+  .genstate{color:var(--ink-2);display:inline-flex;align-items:center;gap:8px;font-style:italic}
+  .spin{width:14px;height:14px;border-radius:50%;border:2px solid var(--shade);border-top-color:var(--accent);animation:sp .7s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+
+  /* Flyout panel */
+  .scrim{position:fixed;inset:0;background:rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:opacity .2s;z-index:40}
+  .scrim.show{opacity:1;pointer-events:auto}
+  .flyout{position:fixed;top:0;right:0;height:100%;width:min(420px,94vw);background:var(--surface);box-shadow:-6px 0 20px rgba(0,0,0,.18);
+    transform:translateX(100%);transition:transform .22s cubic-bezier(.1,.9,.2,1);z-index:41;display:flex;flex-direction:column}
+  .flyout.show{transform:translateX(0)}
+  .fh{padding:16px 20px 12px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:10px}
+  .fh h2{font-size:18px;font-weight:600;margin:0}
+  .fh p{margin:2px 0 0;font-size:12px;color:var(--ink-2)}
+  .fh .x{margin-left:auto;background:transparent;border:0;font-size:20px;color:var(--ink-2);cursor:pointer;line-height:1}
+  .fb{padding:14px 20px;overflow-y:auto}
+  .answer{background:var(--paper);border:1px solid var(--border);border-radius:2px;padding:12px 14px;font-size:13.5px;line-height:1.5;margin-bottom:16px}
+  .srclab{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--faint);margin:0 0 8px}
+  a.src{display:flex;gap:11px;padding:10px 12px;border:1px solid var(--border);border-radius:2px;margin-bottom:8px;color:var(--ink);text-decoration:none}
+  a.src:hover{background:var(--hover);border-color:var(--accent)}
+  .src .ic{width:24px;height:24px;border-radius:2px;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700}
+  .src .ic.opportunity{background:var(--accent)}
+  .src .ic.contact{background:#8661c5}
+  .src .st{font-size:13px;font-weight:600;margin:0}
+  .src .sm{font-size:11.5px;color:var(--ink-2);margin:2px 0 0}
+  .src .go{margin-left:auto;align-self:center;color:var(--accent);font-size:12px}
+  .fnote{font-size:11.5px;color:var(--faint);border-top:1px solid var(--border);padding-top:12px;margin-top:6px;line-height:1.5}
+  .banner{background:#eff6fc;border:1px solid #c7e0f4;color:#0d4f95;font-size:12.5px;padding:8px 16px;display:flex;gap:8px;align-items:center}
+</style>
+</head>
+<body>
+  <div class="appbar">
+    <div class="ico" title="Apps">▦</div>
+    <div class="app">Dynamics 365 <span class="sep"></span> <span class="sub">Sales Hub</span></div>
+    <div class="search">Search</div>
+    <div class="grow"></div>
+    <div class="right">
+      <div class="ico" title="Settings">⚙</div>
+      <div class="ico" title="Help">?</div>
+      <div class="avatar">KK</div>
+    </div>
+  </div>
+
+  <div class="banner">✦ Renewal Risk Summary is an AI prompt column. In this view it is grounded on each account's related opportunities and contacts, with citations to the real records.</div>
+
+  <div class="layout">
+    <nav class="sitemap">
+      <div class="sm-search">Search</div>
+      <div class="sm-item"><span class="g">🏠</span> Home</div>
+      <div class="sm-item"><span class="g">🕐</span> Recent</div>
+      <div class="sm-group">My Work</div>
+      <div class="sm-item"><span class="g">📊</span> Sales accelerator</div>
+      <div class="sm-item"><span class="g">📋</span> Dashboards</div>
+      <div class="sm-item"><span class="g">✔</span> Activities</div>
+      <div class="sm-group">Customers</div>
+      <div class="sm-item on"><span class="g">🏢</span> Accounts</div>
+      <div class="sm-item"><span class="g">👤</span> Contacts</div>
+      <div class="sm-group">Sales</div>
+      <div class="sm-item"><span class="g">◇</span> Leads</div>
+      <div class="sm-item"><span class="g">💲</span> Opportunities</div>
+      <div class="sm-item"><span class="g">🧾</span> Quotes</div>
+      <div class="sm-item"><span class="g">📦</span> Orders</div>
+      <div class="sm-foot"><span class="g">💼</span> Sales <span class="car" style="margin-left:auto">▾</span></div>
+    </nav>
+
+    <div class="main">
+      <div class="cmdbar">
+        <button class="cmd"><span class="g">＋</span> New</button>
+        <button class="cmd" id="refreshBtn"><span class="g">⟳</span> Refresh</button>
+        <div class="cbar-sep"></div>
+        <span style="font-size:12px;color:var(--ink-2)">Renewal Risk column</span>
+        <div class="seg" role="tablist" aria-label="Column mode">
+          <button id="mBase" onclick="setMode('baseline')">Baseline</button>
+          <button id="mGround" class="on" onclick="setMode('grounded')">Grounded</button>
+        </div>
+        <span class="modechip" id="modechip">loading…</span>
+        <div class="grow"></div>
+        <button class="cmd"><span class="g">⤓</span> Export</button>
+      </div>
+
+      <div class="viewhead">
+        <h1>Active Accounts</h1><span class="car">▾</span>
+      </div>
+
+      <div class="gridwrap">
+        <table>
+          <thead><tr>
+            <th class="chkcell"></th>
+            <th>Account Name <span class="sortcar">▲</span></th>
+            <th class="num">Annual Revenue</th>
+            <th class="num">Open Pipeline</th>
+            <th class="ai"><span class="spark">✦</span>Renewal Risk Summary</th>
+          </tr></thead>
+          <tbody id="rows"><tr><td colspan="5" style="padding:24px;color:var(--ink-2)">Loading accounts…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="scrim" id="scrim" onclick="closeFlyout()"></div>
+  <aside class="flyout" id="flyout" aria-hidden="true">
+    <div class="fh"><div><h2 id="fTitle">Sources</h2><p id="fSub"></p></div><button class="x" onclick="closeFlyout()" aria-label="Close">×</button></div>
+    <div class="fb" id="fBody"></div>
+  </aside>
+
+<script>
+  var mode = "grounded";
+  var data = [];
+  function money(n){ return n==null ? "n/a" : "$" + Number(n).toLocaleString(); }
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
+
+  function render(){
+    var rows = document.getElementById("rows");
+    if(!data.length){ rows.innerHTML = '<tr><td colspan="5" style="padding:24px;color:var(--ink-2)">No accounts.</td></tr>'; return; }
+    rows.innerHTML = data.map(function(a,i){
+      var cell;
+      if(mode==="baseline"){
+        cell = '<div class="summary">'+esc(a.baseline)+'</div><button class="srcbtn none" disabled>no sources</button>';
+      } else {
+        var srcs = a.sources && a.sources.length
+          ? '<button class="srcbtn" onclick="openFlyout('+i+')">◆ '+a.sources.length+' sources</button>'
+          : '<button class="srcbtn none" disabled>no related records</button>';
+        cell = '<div class="riskrow"><span class="pill '+a.risk+'">'+a.risk+' risk</span></div>'
+             + '<div class="summary">'+esc(a.grounded)+'</div>'+srcs;
+      }
+      return '<tr><td class="chkcell"><span class="chk"></span></td>'
+        + '<td><a class="acctlink" href="#">'+esc(a.name)+'</a></td>'
+        + '<td class="num">'+esc(money(a.revenue))+'</td>'
+        + '<td class="num">'+(a.openV ? esc(money(a.openV)) : "-")+'</td>'
+        + '<td class="riskcell">'+cell+'</td></tr>';
+    }).join("");
+  }
+
+  function setMode(m){
+    mode = m;
+    document.getElementById("mBase").classList.toggle("on", m==="baseline");
+    document.getElementById("mGround").classList.toggle("on", m==="grounded");
+    render();
+  }
+
+  function openFlyout(i){
+    var a = data[i];
+    document.getElementById("fTitle").textContent = a.name;
+    document.getElementById("fSub").textContent = "Renewal Risk Summary · "+a.sources.length+" cited records";
+    document.getElementById("fBody").innerHTML =
+      '<div class="answer">'+esc(a.grounded)+'</div>'+
+      '<p class="srclab">Grounded on these real records</p>'+
+      a.sources.map(function(s){
+        return '<a class="src" href="'+esc(s.url)+'" target="_blank" rel="noopener">'+
+          '<span class="ic '+s.type+'">'+(s.type==="contact"?"C":"O")+'</span>'+
+          '<div><p class="st">'+esc(s.label)+'</p><p class="sm">'+esc(s.type)+' · '+esc(s.meta)+'</p></div>'+
+          '<span class="go">open ↗</span></a>';
+      }).join("")+
+      '<p class="fnote">Retrieved from the account’s related opportunities and contacts, then summarized. Each link opens the real Dataverse record (you must be signed in to the org). A restricted user would see fewer records here and a matching, shorter answer.</p>';
+    document.getElementById("flyout").classList.add("show");
+    document.getElementById("flyout").setAttribute("aria-hidden","false");
+    document.getElementById("scrim").classList.add("show");
+  }
+  function closeFlyout(){
+    document.getElementById("flyout").classList.remove("show");
+    document.getElementById("flyout").setAttribute("aria-hidden","true");
+    document.getElementById("scrim").classList.remove("show");
+  }
+  document.addEventListener("keydown", function(e){ if(e.key==="Escape") closeFlyout(); });
+
+  async function load(){
+    document.getElementById("modechip").textContent = "loading…";
+    try{
+      var r = await fetch("/api/accounts");
+      var j = await r.json();
+      data = j.accounts || [];
+      document.getElementById("modechip").textContent = j.mode==="live" ? "live data" : "snapshot";
+    }catch(e){
+      document.getElementById("modechip").textContent = "error";
+      document.getElementById("rows").innerHTML = '<tr><td colspan="5" style="padding:24px;color:var(--crit)">Failed to load: '+esc(e.message)+'</td></tr>';
+      return;
+    }
+    render();
+  }
+  document.getElementById("refreshBtn").addEventListener("click", load);
+  load();
+</script>
+</body>
+</html>
