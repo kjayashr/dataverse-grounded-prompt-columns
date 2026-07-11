@@ -11,7 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from .config import get_settings
-from .routers import accounts, health, semantic
+from .routers import accounts, health, promptcol, semantic
 
 settings = get_settings()
 app = FastAPI(title="Grounded Prompt Columns", version="0.1.0")
@@ -33,6 +33,7 @@ async def no_cache(request, call_next):
 app.include_router(health.router)
 app.include_router(accounts.router)
 app.include_router(semantic.router)
+app.include_router(promptcol.router)
 
 # Serve the UI last so /health and /api/* take precedence.
 _static = os.path.join(os.path.dirname(__file__), "static")

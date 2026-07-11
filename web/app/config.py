@@ -19,7 +19,18 @@ class Settings(BaseSettings):
     # How many accounts to pull in live mode.
     account_top: int = 12
 
+    # Azure OpenAI, for the functional prompt-column Test (real generation + citations).
+    # Set AOAI_KEY as a Container App secret; never commit it.
+    aoai_endpoint: str = ""
+    aoai_key: str = ""
+    aoai_deployment: str = "gpt-4.1"
+    aoai_api_version: str = "2024-10-21"
+
     cors_origins: str = "*"
+
+    @property
+    def llm_enabled(self) -> bool:
+        return bool(self.aoai_endpoint and self.aoai_key)
 
     @property
     def org_web_base(self) -> str:

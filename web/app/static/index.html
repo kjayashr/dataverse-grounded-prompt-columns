@@ -260,6 +260,10 @@
   }
   document.getElementById("refreshBtn").addEventListener("click",load);
   load();
+
+  // Auto-open the Edit-prompt pop-up when embedded as a live screenshot (?pb=advanced).
+  (function(){ var m=new URLSearchParams(location.search).get("pb");
+    if(m){ setTimeout(function(){ openPB(); setPB(m==="advanced"?"advanced":"default"); }, 500); } })();
 </script>
 
 <!-- ===== Prompt Builder modal (Default vs Advanced / Dataverse AppIQ) ===== -->
@@ -294,8 +298,14 @@
   .pane-bd{padding:0 16px 14px;flex:1;font-size:13.5px;line-height:1.55}
   .pane-help{font-style:italic;color:var(--ink-2);font-size:12.5px;margin:0 0 14px}
   .promptline{line-height:2.4}
+  .promptedit{line-height:2.4;border:1px solid var(--border-2);border-radius:6px;padding:11px 13px;min-height:92px;font-size:14px;color:var(--ink);background:#fff;outline:none;cursor:text}
+  .promptedit:focus{border-color:var(--purple);box-shadow:0 0 0 1px var(--purple)}
+  .promptedit .chip{cursor:default}
+  .editablehint{margin-top:8px;font-size:11.5px;color:var(--faint)}
   .chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border-2);border-radius:20px;padding:2px 10px;font-size:12.5px;white-space:nowrap;vertical-align:middle}
   .chip .d{width:14px;height:14px;border-radius:50%;display:inline-block}
+  .chip .dvlogo{width:15px;height:15px;flex:none}
+  .pane-hd .test .flask{width:15px;height:15px}
   .chip.data .d{background:#217346}
   .chip.data .ck{color:#217346;font-weight:700}
   .chip.input{border-color:#c8bfe0}
@@ -303,7 +313,8 @@
   .chip.appiq{border-color:var(--purple);color:var(--purple-ink,#5a1e5c);background:#faf6fb}
   .pane-pills{padding:12px 16px 14px;display:flex;gap:8px}
   .pill-dash{display:inline-flex;align-items:center;gap:6px;border:1px dashed var(--border-2);border-radius:20px;padding:5px 12px;font-size:12.5px;color:var(--purple)}
-  .groundnote{margin-top:14px;font-size:12.5px;color:var(--ink-2);display:flex;align-items:center;gap:8px}
+  .groundnote{font-size:12.5px;color:var(--ink-2)}
+  .groundnote:not(:empty){margin-top:14px}
   .groundnote .spark{color:var(--purple)}
   .respph{color:var(--ink-2)}
   .respans{color:var(--ink)}
@@ -316,12 +327,76 @@
   details.trace>summary{cursor:pointer;font-size:12px;color:var(--purple);list-style:none}
   details.trace>summary::-webkit-details-marker{display:none}
   details.trace pre{white-space:pre-wrap;background:var(--hover);border:1px solid var(--border);border-radius:4px;font-family:var(--mono);font-size:11.5px;line-height:1.6;padding:10px 12px;margin:8px 0 0;color:var(--ink)}
+  .src2 .ic.contact{background:#8661c5}
+  a.src2{text-decoration:none;color:inherit}
+  a.src2:hover{background:var(--hover);border-color:var(--purple)}
+  a.src2::after{content:"open ↗";margin-left:auto;align-self:center;color:var(--purple);font-size:10.5px;white-space:nowrap;padding-left:8px}
+  .instrlbl{margin-top:14px;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--faint);display:flex;align-items:center;gap:8px}
+  .pbInstr{width:100%;margin-top:6px;font:inherit;font-size:13px;color:var(--ink);border:1px solid var(--border-2);border-radius:6px;padding:9px 11px;resize:vertical;min-height:64px;line-height:1.5;background:#fff}
+  .pbInstr:focus{outline:none;border-color:var(--purple);box-shadow:0 0 0 1px var(--purple)}
+  .livebadge{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:600;letter-spacing:.03em;color:#0b6a0b;background:var(--good-bg);border-radius:9999px;padding:2px 8px;margin-left:8px;vertical-align:middle}
+  .livebadge .dot{width:6px;height:6px;border-radius:50%;background:#0b6a0b}
+  .runmsg{font-size:12.5px;color:var(--ink-2);display:flex;align-items:center;gap:8px;padding:8px 0}
+  .spin{display:inline-block;width:14px;height:14px;border:2px solid var(--border-2);border-top-color:var(--purple);border-radius:50%;animation:spin .7s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .errmsg{font-size:12.5px;color:var(--crit);background:var(--crit-bg);border-radius:6px;padding:9px 11px;margin-top:6px}
+  .mcptag{font-size:9.5px;font-weight:700;letter-spacing:.05em;color:var(--purple);border:1px solid var(--purple);border-radius:3px;padding:1px 4px;margin-left:2px}
+  .toolmode{margin-left:auto;display:inline-flex;border:1px solid var(--border-2);border-radius:5px;overflow:hidden}
+  .toolmode .tm{border:0;background:#fff;color:var(--ink-2);font:inherit;font-size:11.5px;padding:3px 10px;cursor:pointer}
+  .toolmode .tm.on{background:var(--purple);color:#fff;font-weight:600}
+  .toolmode .tm:not(.on):hover{background:var(--hover)}
+  .toolcap{font-size:11.5px;color:var(--ink-2);margin:8px 0 10px}
+  .toollist{display:flex;flex-direction:column;gap:6px}
+  .toolrow{display:flex;align-items:center;gap:10px;border:1px solid var(--border-2);border-radius:6px;padding:7px 10px;background:#fff}
+  .toolrow.choose{cursor:pointer}
+  .toolrow.choose:hover{border-color:var(--purple)}
+  .toolrow .tck{width:15px;height:15px;border-radius:3px;border:1.5px solid var(--border-2);display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;flex:none}
+  .toolrow.on .tck{background:var(--purple);border-color:var(--purple)}
+  .toolrow:not(.on){opacity:.5}
+  .toolrow .tid{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--ink)}
+  .toolrow .tlab{font-size:11.5px;color:var(--ink-2)}
+  .exclsec{margin-top:12px;display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:11.5px;color:var(--faint)}
+  .exclsec .lock{width:13px;height:13px;flex:none}
+  .exchip{font-family:var(--mono);font-size:11px;color:var(--faint);border:1px dashed var(--border-2);border-radius:5px;padding:2px 7px;text-decoration:line-through;text-decoration-color:var(--faint)}
   .pb-ft{display:flex;justify-content:flex-end;gap:10px;padding:12px 20px;border-top:1px solid var(--border)}
   .pb-ft .save{background:var(--purple);color:#fff;border:0;border-radius:4px;font-size:13px;font-weight:600;padding:8px 18px;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
   .pb-ft .cancel{background:#fff;border:1px solid var(--border-2);border-radius:4px;font-size:13px;padding:8px 18px;cursor:pointer}
   .aigen{font-size:11.5px;color:var(--ink-2);padding:0 16px 12px}
+  .dvlogo{width:18px;height:18px;flex:none}
+  .groundsec{margin-top:16px;border-top:1px solid var(--border);padding-top:14px}
+  .groundhdr{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;margin-bottom:10px}
+  .capstrip{display:flex;flex-wrap:wrap;gap:8px}
+  .capchip{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border-2);border-radius:6px;padding:8px 11px;font-size:12px;background:#fff;line-height:1.3}
+  .capchip .ci{width:16px;height:16px;color:var(--purple);flex:none}
+  .capchip b{font-weight:600;color:var(--ink)}
+  .capchip .csub{color:var(--ink-2)}
+  .groundone{margin-top:12px;font-size:12px;color:var(--ink-2)}
+  .whyadv{background:#faf6fb;border:1px solid #ecd9ee;border-radius:6px;padding:10px 12px;font-size:12.5px;color:#5a1e5c;margin-bottom:14px;display:flex;gap:8px;align-items:flex-start}
+  .whyadv .dvlogo{width:16px;height:16px;margin-top:1px}
   @media(max-width:820px){.pb-body{grid-template-columns:1fr}}
 </style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="dvlogo" viewBox="0 0 96 96">
+<g clip-path="url(#clip0_4303_1230)"><g clip-path="url(#clip1_4303_1230)"><g clip-path="url(#clip2_4303_1230)">
+<path d="M13.8776 21.8242C29.1033 8.13791 49.7501 8.1861 62.955 18.9134C74.9816 28.6836 77.4697 44.3159 70.851 55.7801C64.2321 67.2443 52.5277 70.1455 39.5011 62.6247L31.7286 76.087L31.7234 76.0862C27.4181 83.5324 17.8937 86.0828 10.4437 81.7817C7.45394 80.0556 5.25322 77.4879 3.96665 74.551L3.96096 74.5511C-4.07832 55.7804 0.200745 34.1184 13.8776 21.8242Z" fill="url(#paint0_radial_4303_1230)"/>
+<path d="M13.8776 21.8242C29.1033 8.13791 49.7501 8.1861 62.955 18.9134C74.9816 28.6836 77.4697 44.3159 70.851 55.7801C64.2321 67.2443 52.5277 70.1455 39.5011 62.6247L31.7286 76.087L31.7234 76.0862C27.4181 83.5324 17.8937 86.0828 10.4437 81.7817C7.45394 80.0556 5.25322 77.4879 3.96665 74.551L3.96096 74.5511C-4.07832 55.7804 0.200745 34.1184 13.8776 21.8242Z" fill="url(#paint1_radial_4303_1230)" fill-opacity="0.8"/>
+<path d="M85.4327 14.2231C88.4528 15.9668 90.6686 18.569 91.9494 21.5433L91.9533 21.5444C99.9406 40.2943 95.6533 61.9068 81.9983 74.1814C66.7726 87.8677 46.1257 87.8196 32.9209 77.0923C20.8945 67.3221 18.4062 51.6897 25.0249 40.2256C31.6438 28.7614 43.3482 25.8601 56.3748 33.381L64.1434 19.9255L64.1482 19.9249C68.4516 12.4736 77.9805 9.92084 85.4327 14.2231Z" fill="url(#paint2_radial_4303_1230)"/>
+<path d="M85.4327 14.2231C88.4528 15.9668 90.6686 18.569 91.9494 21.5433L91.9533 21.5444C99.9406 40.2943 95.6533 61.9068 81.9983 74.1814C66.7726 87.8677 46.1257 87.8196 32.9209 77.0923C20.8945 67.3221 18.4062 51.6897 25.0249 40.2256C31.6438 28.7614 43.3482 25.8601 56.3748 33.381L64.1434 19.9255L64.1482 19.9249C68.4516 12.4736 77.9805 9.92084 85.4327 14.2231Z" fill="url(#paint3_radial_4303_1230)" fill-opacity="0.9"/>
+<path d="M39.5041 62.6261C52.5307 70.1469 64.2352 67.2456 70.8541 55.7814C77.2488 44.7055 75.1426 29.7389 64.147 19.9271L56.3791 33.3814L39.5041 62.6261Z" fill="url(#paint4_radial_4303_1230)"/>
+<path d="M56.3794 33.3815C43.3528 25.8607 31.6482 28.762 25.0294 40.2262C18.6347 51.3021 20.7409 66.2687 31.7364 76.0806L39.5043 62.6262L56.3794 33.3815Z" fill="url(#paint5_radial_4303_1230)"/>
+<path d="M33.3215 56.4453C37.9837 64.5204 48.3094 67.2872 56.3846 62.625C64.4598 57.9628 67.2266 47.6371 62.5643 39.5619C57.9021 31.4867 47.5764 28.72 39.5013 33.3822C31.4261 38.0444 28.6593 48.3701 33.3215 56.4453Z" fill="url(#paint6_radial_4303_1230)"/>
+</g></g></g><defs>
+<radialGradient id="paint0_radial_4303_1230" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(46.0001 49.4996) rotate(-148.717) scale(46.2195 47.5359)"><stop offset="0.465088" stop-color="#09442A"/><stop offset="0.70088" stop-color="#136C6C"/><stop offset="1" stop-color="#22918B"/></radialGradient>
+<radialGradient id="paint1_radial_4303_1230" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(50.0001 32.4996) rotate(123.57) scale(66.0095 46.5498)"><stop offset="0.718705" stop-color="#1A7F7C" stop-opacity="0"/><stop offset="1" stop-color="#16BBDA"/></radialGradient>
+<radialGradient id="paint2_radial_4303_1230" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(50.4999 44.5001) rotate(30.75) scale(45.9618 44.5095)"><stop offset="0.358097" stop-color="#136C6C"/><stop offset="0.789474" stop-color="#42B870"/><stop offset="1" stop-color="#76D45E"/></radialGradient>
+<radialGradient id="paint3_radial_4303_1230" cx="0" cy="0" r="1" gradientTransform="matrix(42.5 -36.0002 31.1824 36.8127 49.4998 55.5001)" gradientUnits="userSpaceOnUse"><stop offset="0.583166" stop-color="#76D45E" stop-opacity="0"/><stop offset="1" stop-color="#C8F5B7"/></radialGradient>
+<radialGradient id="paint4_radial_4303_1230" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(47.5 48) rotate(-58.9042) scale(32.6898)"><stop offset="0.486266" stop-color="#22918B"/><stop offset="0.729599" stop-color="#42B870"/><stop offset="1" stop-color="#43E5CA"/></radialGradient>
+<radialGradient id="paint5_radial_4303_1230" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(47.3833 49.0077) rotate(119.859) scale(31.1328 29.4032)"><stop offset="0.459553" stop-color="#08494E"/><stop offset="0.742242" stop-color="#1A7F7C"/><stop offset="1" stop-color="#309C61"/></radialGradient>
+<radialGradient id="paint6_radial_4303_1230" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(52.5 40) rotate(120.784) scale(27.3542)"><stop stop-color="#C8F5B7"/><stop offset="0.24583" stop-color="#98F0B0"/><stop offset="0.643961" stop-color="#52D17C"/><stop offset="1" stop-color="#119FC5"/></radialGradient>
+<clipPath id="clip0_4303_1230"><rect width="96" height="96" fill="white"/></clipPath>
+<clipPath id="clip1_4303_1230"><rect width="96" height="96" fill="white"/></clipPath>
+<clipPath id="clip2_4303_1230"><rect width="95.9998" height="96" fill="white"/></clipPath>
+</defs></symbol></svg>
 
 <div class="pbscrim" id="pbscrim" onclick="closePB()"></div>
 <div class="pb" id="pb" role="dialog" aria-modal="true" aria-label="Edit prompt">
@@ -336,23 +411,24 @@
     <span class="lbl">Ground on:</span>
     <div class="pbseg" role="tablist">
       <button id="pbDefault" class="on" onclick="setPB('default')"><span>▤</span> This record (Prompt Builder)</button>
-      <button id="pbAdvanced" onclick="setPB('advanced')"><span>✦</span> Your Dataverse (AppIQ)</button>
+      <button id="pbAdvanced" onclick="setPB('advanced')"><svg class="dvlogo" viewBox="0 0 96 96"><use href="#dvlogo"/></svg> Your Dataverse (AppIQ)</button>
     </div>
     <span class="pb-scope" id="pbScope">Model: GPT-4.1 mini</span>
   </div>
 
   <div class="pb-body">
     <div class="pane">
-      <div class="pane-hd">Instructions <button class="test">⚗ Test</button></div>
+      <div class="pane-hd">Instructions <button class="test" id="pbTest" onclick="runTest()"><svg class="flask" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5h4"/><path d="M8.6 2.5v4.6L4.5 14.2A1.5 1.5 0 0 0 5.8 16.5h8.4a1.5 1.5 0 0 0 1.3-2.3L11.4 7.1V2.5"/><path d="M7 11.7h6"/></svg> Test</button></div>
       <div class="pane-bd">
         <p class="pane-help">Create a prompt using a column from this table as input and use at least one Text Input variable as a filter. Prompts allow dynamic interactions with your data, such as sentiment analysis, data extraction, and content generation.</p>
-        <div class="promptline" id="pbPrompt"></div>
+        <div class="promptedit" id="pbPrompt" contenteditable="true" spellcheck="false" role="textbox" aria-multiline="true" aria-label="Prompt instruction"></div>
+        <div class="editablehint">Edit the instruction above. The <b>Account.name</b> token is replaced with each row's value when the column runs.</div>
         <div class="groundnote" id="pbGroundNote"></div>
       </div>
       <div class="pane-pills" id="pbPills"></div>
     </div>
     <div class="pane">
-      <div class="pane-hd">Model response <span class="out">Output: Text</span></div>
+      <div class="pane-hd">Model response <span id="pbLiveLbl"></span> <span class="out">Output: Text</span></div>
       <div class="pane-bd" id="pbResp"></div>
       <div class="aigen">AI-generated content may be incorrect.</div>
     </div>
@@ -363,42 +439,182 @@
 
 <script>
   var PB_PROMPT_HEAD = 'Write a concise, two-sentence renewal risk summary for the account ';
-  var CHIP_ACCT = '<span class="chip data"><span class="d"></span>Account.name <span class="ck">✓</span></span>';
+  var CHIP_ACCT = '<span class="chip data" contenteditable="false" data-token="{Account.name}"><svg class="dvlogo" viewBox="0 0 96 96"><use href="#dvlogo"/></svg>Account.name <span class="ck">✓</span></span>';
   var CHIP_REC  = '<span class="chip input"><span class="d"></span>PromptColumnRecordId</span>';
   var CHIP_APPIQ= '<span class="chip appiq">✦ Dataverse AppIQ tools</span>';
 
+  // Real record deep-links (org406c2541) so the example citations are clickable too.
+  var ORG_REC = 'https://org406c2541.crm.dynamics.com/main.aspx?pagetype=entityrecord&etn=';
+  function recUrl(etn,id){ return ORG_REC + etn + '&id=' + id; }
+
+  var DVL = '<svg class="dvlogo" viewBox="0 0 96 96"><use href="#dvlogo"/></svg>';
+  var IC_SEARCH = '<svg class="ci" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="9" r="6"/><path d="M14 14l4 4"/></svg>';
+  var IC_QUERY  = '<svg class="ci" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="14" height="14" rx="2"/><path d="M3 8h14M8 3v14"/></svg>';
+  var IC_CITE   = '<svg class="ci" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 3h6l4 4v11a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M12 3v4h4"/></svg>';
+
+  // One editable instruction, shared by both grounding modes (the pitch: keep the
+  // instruction, flip the grounding). The Account.name chip serialises to its token.
+  var PB_INSTR_HTML = PB_PROMPT_HEAD + CHIP_ACCT + '. Name one likely renewal risk and recommend one next step. Keep it under 40 words.';
+
   var PB = {
     "default": {
-      prompt: PB_PROMPT_HEAD + CHIP_ACCT + ' . Name one likely renewal risk and recommend one next step. Keep it under 40 words filter by ' + CHIP_REC,
+      prompt: PB_INSTR_HTML,
       groundNote: '',
       pills: '<span class="pill-dash">+ Add content</span><span class="pill-dash">→ 1 input</span>',
-      resp: '<p class="respans">Fabrikam, Inc. is a manufacturing account. Standard renewal risk applies; recommend timely engagement.</p><p class="groundnote"><span>Grounded on <b>this record</b> only (accountid = the current row). It cannot see the account\'s cases, notes, or other deals.</p>'
+      resp: '<p class="respans">Fabrikam, Inc. is a manufacturing account. Standard renewal risk applies; recommend timely engagement.</p>'
+        + '<p class="groundone">Grounded on <b>this record</b> (plus any related tables you pre-wire with Add content). It can\'t search unstructured notes or emails by meaning, run queries or aggregates, or decide what to fetch at runtime.</p>'
     },
     "advanced": {
-      prompt: PB_PROMPT_HEAD + CHIP_ACCT + ' . Name one likely renewal risk and recommend one next step. Keep it under 40 words.',
-      groundNote: '<span class="spark">✦</span> Grounds on <b>your Dataverse</b> via AppIQ tools (search + query), with citations. No record filter needed.',
-      pills: '<span class="pill-dash" style="border-style:solid;border-color:var(--purple)">✦ Dataverse AppIQ tools</span>',
-      resp: '<p class="respans"><b>High risk.</b> Fabrikam looks healthy on pipeline, but its notes reveal active churn signals: frustration after a product recall with a competitor now under evaluation, next year\'s budget frozen, and three weeks of unanswered outreach. Recommend exec escalation.</p>'
+      prompt: PB_INSTR_HTML,
+      groundNote: '<div class="groundsec"><div class="groundhdr">' + DVL + ' Dataverse AppIQ tools <span class="mcptag">MCP</span>'
+        + '<span class="toolmode" id="pbToolMode">'
+        + '<button class="tm on" data-m="auto" onclick="setToolMode(\'auto\')">Auto</button>'
+        + '<button class="tm" data-m="choose" onclick="setToolMode(\'choose\')">Choose tools</button>'
+        + '</span></div>'
+        + '<div class="toolcap" id="pbToolCap"></div>'
+        + '<div class="toollist" id="pbTools"></div>'
+        + '<div class="exclsec"><svg class="lock" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4.5" y="9" width="11" height="8" rx="1.5"/><path d="M7 9V6.5a3 3 0 0 1 6 0V9"/></svg>'
+        + 'Not exposed to prompt columns (read-only):'
+        + '<span class="exchip">create_record</span><span class="exchip">update_record</span><span class="exchip">delete_record</span>'
+        + '<span class="exchip">create_table</span><span class="exchip">update_table</span><span class="exchip">delete_table</span></div>'
+        + '<p class="groundone">The model decides what to pull for each row, and cites it. Read-only, user-scoped. <b>Runs per row.</b></p></div>',
+      pills: '',
+      resp: '<div class="whyadv">' + DVL + '<div><b>Why this needs advanced:</b> the answer required semantic search over the account\'s notes and a query across its pipeline. Prompt Builder can pre-wire related tables, but can\'t do meaning-based search, queries/aggregates, or decide what to fetch at runtime.</div></div>'
+        + '<p class="respans"><b>High risk.</b> Fabrikam looks healthy on pipeline, but its notes reveal active churn signals: frustration after a product recall with a competitor now under evaluation, next year\'s budget frozen, and three weeks of unanswered outreach. Recommend exec escalation.</p>'
         + '<p class="srclab2">Sources (4)</p>'
-        + '<div class="src2"><span class="ic note">N</span><div><div class="st">Plant visit debrief</div><div class="sm">note · evaluating a competitor after the recall</div></div></div>'
-        + '<div class="src2"><span class="ic note">N</span><div><div class="st">Budget conversation</div><div class="sm">note · next year\'s budget frozen</div></div></div>'
-        + '<div class="src2"><span class="ic note">N</span><div><div class="st">Follow-up attempt</div><div class="sm">note · no reply in three weeks</div></div></div>'
-        + '<div class="src2"><span class="ic opportunity">O</span><div><div class="st">2 Café Duo Espresso Machines</div><div class="sm">opportunity · $25,800 · open</div></div></div>'
-        + '<details class="trace"><summary>▸ How it was grounded (tool calls)</summary><pre>search_data("renewal risk / churn signals for Fabrikam")  -> 3 notes\nquery("SELECT name, estimatedvalue, statecode FROM opportunity WHERE account = Fabrikam")  -> pipeline\nrecords.retrieve("annotation", ...)  -> cited notes\n\n[model: gpt-4.1-mini · read-only tools · user-scoped]</pre></details>'
+        + '<a class="src2" href="'+recUrl('annotation','7f1e18c4-a07c-f111-ab0e-6045bd07969f')+'" target="_blank" rel="noopener"><span class="ic note">N</span><div><div class="st">Plant visit debrief</div><div class="sm">note · evaluating a competitor after the recall</div></div></a>'
+        + '<a class="src2" href="'+recUrl('annotation','841e18c4-a07c-f111-ab0e-6045bd07969f')+'" target="_blank" rel="noopener"><span class="ic note">N</span><div><div class="st">Budget conversation</div><div class="sm">note · next year\'s budget frozen</div></div></a>'
+        + '<a class="src2" href="'+recUrl('annotation','891e18c4-a07c-f111-ab0e-6045bd07969f')+'" target="_blank" rel="noopener"><span class="ic note">N</span><div><div class="st">Follow-up attempt</div><div class="sm">note · no reply in three weeks</div></div></a>'
+        + '<a class="src2" href="'+recUrl('opportunity','90a128af-1f73-ea11-a811-000d3a1bb5a2')+'" target="_blank" rel="noopener"><span class="ic opportunity">O</span><div><div class="st">2 Café Duo Espresso Machines</div><div class="sm">opportunity · $25,800 · open</div></div></a>'
+        + '<details class="trace"><summary>▸ How it was grounded (tool calls)</summary><pre>search_data("renewal risk / churn signals for Fabrikam")  -> 3 notes\nquery("SELECT name, estimatedvalue, statecode FROM opportunity WHERE account = Fabrikam")  -> pipeline\nrecords.retrieve("annotation", ...)  -> cited notes\n\n[per row · model gpt-4.1-mini · read-only tools · user-scoped]</pre></details>'
     }
   };
 
+  // ---- MCP tool selection (left pane, Advanced) ----
+  var PB_TOOLCAT = [
+    {id:"search_data",    label:"Semantic search over notes, emails, files (needs Dataverse search on)"},
+    {id:"search",         label:"Keyword search across records and metadata"},
+    {id:"read_query",     label:"Relational query, JOINs & aggregates (SELECT)"},
+    {id:"fetch",          label:"Retrieve a full record to cite"},
+    {id:"describe_table", label:"Inspect table schema: columns, types, relationships"},
+    {id:"list_tables",    label:"Discover the tables available in the environment"}
+  ];
+  var PB_TOOLSEL = new Set(PB_TOOLCAT.map(function(t){return t.id;}));
+  var PB_TOOLMODE = "auto";
+  function renderTools(){
+    var box = document.getElementById("pbTools");
+    if(!box) return;
+    var choose = PB_TOOLMODE==="choose";
+    box.innerHTML = PB_TOOLCAT.map(function(t){
+      var on = PB_TOOLSEL.has(t.id);
+      return '<div class="toolrow'+(on?" on":"")+(choose?" choose":"")+'"'
+        + (choose?' onclick="toggleTool(\''+t.id+'\')"':'')+'>'
+        + '<span class="tck">✓</span><span class="tid">'+t.id+'</span>'
+        + '<span class="tlab">'+t.label+'</span></div>';
+    }).join("");
+    var cap = document.getElementById("pbToolCap");
+    if(cap) cap.textContent = choose
+      ? "Choose which MCP tools this column may call."
+      : "All MCP tools selected. The column calls the relevant ones at runtime.";
+    var mm = document.getElementById("pbToolMode");
+    if(mm) [].forEach.call(mm.querySelectorAll(".tm"), function(b){ b.classList.toggle("on", b.dataset.m===PB_TOOLMODE); });
+  }
+  function setToolMode(m){
+    PB_TOOLMODE = m;
+    if(m==="auto") PB_TOOLSEL = new Set(PB_TOOLCAT.map(function(t){return t.id;}));
+    renderTools();
+  }
+  function toggleTool(id){
+    if(PB_TOOLMODE!=="choose") return;
+    if(PB_TOOLSEL.has(id)) PB_TOOLSEL.delete(id); else PB_TOOLSEL.add(id);
+    renderTools();
+  }
+  function selectedTools(){ return PB_TOOLMODE==="auto" ? [] : Array.from(PB_TOOLSEL); }
+
+  var PB_MODE = "default";
   function setPB(mode){
+    PB_MODE = mode;
     document.getElementById("pbDefault").classList.toggle("on", mode==="default");
     document.getElementById("pbAdvanced").classList.toggle("on", mode==="advanced");
     var d = PB[mode];
     document.getElementById("pbPrompt").innerHTML = d.prompt;
     document.getElementById("pbGroundNote").innerHTML = d.groundNote;
-    document.getElementById("pbPills").innerHTML = d.pills;
+    document.getElementById("pbLiveLbl").innerHTML = "";
+    var pills = document.getElementById("pbPills");
+    pills.innerHTML = d.pills;
+    pills.style.display = d.pills ? "flex" : "none";
     document.getElementById("pbResp").innerHTML = d.resp;
+    if(mode==="advanced") renderTools();
   }
-  function openPB(){ setPB("default"); document.getElementById("pb").classList.add("show"); document.getElementById("pbscrim").classList.add("show"); }
+  function openPB(){ setPB("default"); document.getElementById("pb").classList.add("show"); document.getElementById("pbscrim").classList.add("show"); pbStatus(); }
   function closePB(){ document.getElementById("pb").classList.remove("show"); document.getElementById("pbscrim").classList.remove("show"); }
+
+  // ---- functional Test: real instruction -> gpt-4.1 -> real citations ----
+  var PB_LIVE = null;  // null until /status resolves
+  function pbStatus(){
+    fetch("/api/promptcol/status").then(function(r){return r.json();}).then(function(j){
+      PB_LIVE = !!j.enabled;
+      if(j.tools && j.tools.length){
+        PB_TOOLCAT = j.tools;
+        if(PB_TOOLMODE==="auto") PB_TOOLSEL = new Set(PB_TOOLCAT.map(function(t){return t.id;}));
+        renderTools();
+      }
+      document.getElementById("pbTest").title = PB_LIVE
+        ? ("Run this instruction live on " + (j.deployment||"the model"))
+        : "Model not configured; showing the captured example";
+    }).catch(function(){ PB_LIVE = false; });
+  }
+  function esc2(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+  function icLetter(t){return t==="note"?"N":t==="contact"?"C":"O";}
+  function srcRow(s){
+    return '<a class="src2" href="'+esc2(s.url)+'" target="_blank" rel="noopener">'
+      +'<span class="ic '+esc2(s.type)+'">'+icLetter(s.type)+'</span>'
+      +'<div><div class="st">'+esc2(s.label)+'</div><div class="sm">'+esc2(s.type)+' · '+esc2(s.meta)+'</div></div></a>';
+  }
+  function traceText(tr){
+    return tr.map(function(step){
+      return '▸ '+step.tool+'\n  request:\n'+step.request.replace(/\n/g,'\n  ')
+        +'\n  response:\n  '+step.response.replace(/\n/g,'\n  ');
+    }).join('\n\n');
+  }
+  function renderRun(d){
+    var why = PB_MODE==="advanced"
+      ? '<div class="whyadv">'+DVL+'<div><b>Grounded live via AppIQ tools.</b> The retrieval step chose these records by meaning, then the prompt column wrote the answer from them. Runs per row.</div></div>'
+      : '';
+    var srcs = d.sources && d.sources.length
+      ? '<p class="srclab2">Sources ('+d.sources.length+')</p>'+d.sources.map(srcRow).join('')
+      : '<p class="groundone">No related records retrieved. Grounded on this record\'s own columns only.</p>';
+    document.getElementById("pbResp").innerHTML =
+      why + '<p class="respans">'+esc2(d.answer)+'</p>' + srcs
+      + '<details class="trace"><summary>▸ How it was grounded (live tool calls)</summary><pre>'+esc2(traceText(d.trace))+'</pre></details>';
+    document.getElementById("pbLiveLbl").innerHTML = '<span class="livebadge"><span class="dot"></span>LIVE · gpt-4.1</span>';
+  }
+  // Serialize the editable prompt box to plain text, chips -> their {token}.
+  function readInstr(){
+    var box = document.getElementById("pbPrompt"), out = "";
+    [].forEach.call(box.childNodes, function(n){
+      if(n.nodeType===3) out += n.textContent;
+      else if(n.nodeType===1) out += (n.dataset && n.dataset.token) ? n.dataset.token : n.textContent;
+    });
+    return out.replace(/\s+/g," ").trim();
+  }
+  function runTest(){
+    var instr = readInstr();
+    var resp = document.getElementById("pbResp");
+    var btn = document.getElementById("pbTest");
+    if(PB_LIVE === false){
+      resp.innerHTML = '<div class="errmsg">The model isn\'t configured on this deployment, so Test can\'t run live. Showing the captured example above.</div>' + PB[PB_MODE].resp;
+      return;
+    }
+    btn.disabled = true;
+    resp.innerHTML = '<div class="runmsg"><span class="spin"></span> Running the instruction' + (PB_MODE==="advanced" ? " and retrieving from Dataverse" : "") + '…</div>';
+    fetch("/api/promptcol/run", {method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({mode: PB_MODE, instruction: instr, tools: selectedTools()})})
+      .then(function(r){ if(!r.ok) return r.json().then(function(j){throw new Error(j.detail||r.status);}); return r.json(); })
+      .then(function(d){ renderRun(d); })
+      .catch(function(e){ resp.innerHTML = '<div class="errmsg">Test failed: '+esc2(e.message)+'</div>' + PB[PB_MODE].resp; })
+      .finally(function(){ btn.disabled = false; });
+  }
   document.addEventListener("keydown",function(e){ if(e.key==="Escape") closePB(); });
 </script>
 </body>
