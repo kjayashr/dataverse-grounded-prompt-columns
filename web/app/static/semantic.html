@@ -5,132 +5,116 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Renewal Risk | Grounding compared</title>
 <style>
+  @font-face{font-family:"Segoe UI";font-style:normal;font-weight:400;font-display:swap;src:url("https://static2.sharepointonline.com/files/fabric/assets/fonts/segoeui-westeuropean/segoeui-regular.woff2") format("woff2")}
+  @font-face{font-family:"Segoe UI";font-style:normal;font-weight:600;font-display:swap;src:url("https://static2.sharepointonline.com/files/fabric/assets/fonts/segoeui-westeuropean/segoeui-semibold.woff2") format("woff2")}
+  @font-face{font-family:"Segoe UI";font-style:normal;font-weight:700;font-display:swap;src:url("https://static2.sharepointonline.com/files/fabric/assets/fonts/segoeui-westeuropean/segoeui-bold.woff2") format("woff2")}
   :root{
-    --navbar:#002050; --accent:#1160B7; --shelf:#DFE2E8; --border:#e1dfdd; --border-2:#cccccc;
-    --shade:#f3f2f1; --hover:#D7EBF9; --ink:#323130; --ink-2:#605e5c; --faint:#a19f9d;
-    --paper:#faf9f8; --surface:#ffffff;
-    --none:#605e5c; --none-bg:#f3f2f1; --good:#107C10; --good-bg:#dff6dd;
-    --warn:#815500; --warn-bg:#fff4ce; --crit:#a4262c; --crit-bg:#fde7e9;
-    --sans:"Segoe UI","Segoe UI Web (West European)",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,sans-serif;
+    --purple:#742774; --ink:#242424; --ink-2:#605e5c; --faint:#a19f9d; --border:#edebe9; --border-2:#e1dfdd;
+    --hover:#f3f2f1; --row-hover:#faf9f8; --avatar:#c19a3a;
+    --none:#605e5c; --none-bg:#f3f2f1; --good:#107c41; --good-bg:#dff6dd;
+    --warn:#8a5a00; --warn-bg:#fff4ce; --crit:#a4262c; --crit-bg:#fde7e9;
+    --sans:"Segoe UI","Segoe UI Web (West European)",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",sans-serif;
     --mono:Consolas,"Courier New",Courier,monospace;
   }
-  *{box-sizing:border-box}
-  body{margin:0;font-family:var(--sans);color:var(--ink);background:var(--paper);font-size:14px;line-height:20px;-webkit-font-smoothing:antialiased}
-  a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
-  .appbar{height:48px;background:var(--navbar);color:#fff;display:flex;align-items:center;padding:0 8px}
-  .appbar .ico{width:40px;height:48px;display:flex;align-items:center;justify-content:center;opacity:.92}
-  .appbar .app{padding:0 8px;font-size:15px;font-weight:600}
-  .appbar .app .sep{opacity:.5;margin:0 8px}.appbar .app .sub{font-weight:400;opacity:.9}
-  .appbar .grow{flex:1}.appbar .avatar{width:30px;height:30px;border-radius:50%;background:#3a6bbf;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;margin:0 8px}
+  *{box-sizing:border-box;margin:0}
+  body{font-family:var(--sans);color:var(--ink);background:#fff;font-size:14px;-webkit-font-smoothing:antialiased}
+  a{color:var(--purple);text-decoration:none}a:hover{text-decoration:underline}
+  .gl{width:18px;height:18px;display:inline-block;vertical-align:middle}.gl.s20{width:20px;height:20px}.gl.s16{width:16px;height:16px}
 
-  .wrap{max-width:1160px;margin:0 auto;padding:20px 20px 70px}
-  .crumb{font-size:12px;color:var(--ink-2);margin-bottom:6px}
-  h1{font-size:24px;font-weight:600;letter-spacing:-.01em;margin:0 0 4px}
-  .sub{color:var(--ink-2);font-size:14px;margin:0 0 4px;max-width:80ch}
+  .hdr{height:48px;background:var(--purple);color:#fff;display:flex;align-items:center;padding:0 12px}
+  .hdr .icobtn{margin-right:4px;border:0;background:transparent;color:#fff;padding:6px;border-radius:4px;display:flex;cursor:pointer}
+  .hdr .brand{margin-right:24px;font-size:15px;font-weight:600}
+  .hdr .grow{flex:1}
+  .hdr .env{margin-right:16px;display:flex;align-items:center;gap:8px;border-left:1px solid rgba(255,255,255,.2);padding-left:16px}
+  .hdr .env .box{width:32px;height:32px;border-radius:4px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center}
+  .hdr .env .l1{font-size:10px;color:rgba(255,255,255,.8);line-height:1.2}.hdr .env .l2{font-size:13px;font-weight:500;line-height:1.2}
+  .hdr .avatar{width:32px;height:32px;border-radius:50%;background:var(--avatar);color:#fff;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;margin-left:4px}
+
+  .aiband{background:#faf6fb;border-bottom:1px solid #ecd9ee;color:#5a1e5c;font-size:13px;padding:8px 24px;display:flex;gap:8px;align-items:center}
+  .wrap{max-width:1160px;margin:0 auto;padding:22px 24px 70px}
+  .crumb{font-size:13px;color:var(--ink-2);margin-bottom:6px}
+  h1{font-size:28px;font-weight:600;letter-spacing:-.02em;margin:0 0 4px}
+  .sub{color:var(--ink-2);font-size:14px;max-width:80ch}
   .acctlink{font-weight:600}
 
   .compare{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:22px}
   @media(max-width:860px){.compare{grid-template-columns:1fr}}
-  .tier{background:var(--surface);border:1px solid var(--border);border-radius:4px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.04)}
-  .tier.win{border:2px solid var(--accent);box-shadow:0 4px 16px rgba(17,96,183,.14)}
+  .tier{background:#fff;border:1px solid var(--border);border-radius:4px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 1.6px 3.6px rgba(0,0,0,.08)}
+  .tier.win{border:2px solid var(--purple);box-shadow:0 3.2px 7.2px rgba(116,39,116,.16)}
   .tier .th{padding:14px 16px 12px;border-bottom:1px solid var(--border)}
   .tier .step{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
-  .tier .tt{font-size:17px;font-weight:600;margin:2px 0 2px;display:flex;align-items:center;gap:7px}
-  .tier .tt .spark{color:#8661c5}
-  .tier .how{font-size:12.5px;color:var(--ink-2);margin:0}
-  .tier .found{font-family:var(--sans);font-size:12px;color:var(--ink-2);margin-top:8px;display:inline-block;background:var(--shade);padding:2px 8px;border-radius:10px}
+  .tier .tt{font-size:17px;font-weight:600;margin:2px 0;display:flex;align-items:center;gap:7px}
+  .tier .tt .spark{color:var(--purple)}
+  .tier .how{font-size:12.5px;color:var(--ink-2)}
+  .tier .found{font-size:12px;color:var(--ink-2);margin-top:8px;display:inline-block;background:var(--hover);padding:2px 8px;border-radius:9999px}
   .tier .tb{padding:14px 16px;flex:1}
-  .verdict{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:15px;padding:7px 12px;border-radius:4px;margin-bottom:12px}
-  .verdict.none{background:var(--none-bg);color:var(--none)}
-  .verdict.low{background:var(--good-bg);color:var(--good)}
-  .verdict.high{background:var(--crit-bg);color:var(--crit)}
-  .tier .summary{font-size:13.5px;line-height:1.5;color:var(--ink)}
+  .verdict{display:inline-flex;align-items:center;font-weight:700;font-size:15px;padding:7px 12px;border-radius:4px;margin-bottom:12px}
+  .verdict.none{background:var(--none-bg);color:var(--none)}.verdict.low{background:var(--good-bg);color:var(--good)}.verdict.high{background:var(--crit-bg);color:var(--crit)}
+  .tier .summary{font-size:13.5px;line-height:1.5}
   .srclab{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--faint);margin:16px 0 8px}
-  a.src{display:flex;gap:10px;padding:9px 10px;border:1px solid var(--border);border-radius:3px;margin-bottom:7px;color:var(--ink);text-decoration:none}
-  a.src:hover{background:var(--hover);border-color:var(--accent)}
-  .src .ic{width:22px;height:22px;border-radius:3px;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700}
-  .src .ic.opportunity{background:var(--accent)}.src .ic.contact{background:#8661c5}.src .ic.note{background:#d29200}
-  .src .st{font-size:12.5px;font-weight:600;margin:0}
-  .src .sm{font-size:11px;color:var(--ink-2);margin:2px 0 0}
-  .src .go{margin-left:auto;align-self:center;color:var(--accent);font-size:11px;white-space:nowrap}
+  a.src{display:flex;gap:10px;padding:9px 10px;border:1px solid var(--border);border-radius:4px;margin-bottom:7px;color:var(--ink)}
+  a.src:hover{background:var(--hover);border-color:var(--purple)}
+  .src .ic{width:22px;height:22px;border-radius:2px;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700}
+  .src .ic.opportunity{background:var(--purple)}.src .ic.contact{background:#8661c5}.src .ic.note{background:#c19a3a}
+  .src .st{font-size:12.5px;font-weight:600}.src .sm{font-size:11px;color:var(--ink-2);margin-top:2px}
+  .src .go{margin-left:auto;align-self:center;color:var(--purple);font-size:11px;white-space:nowrap}
   .none-src{font-size:12.5px;color:var(--faint);font-style:italic}
   .promptbox{margin-top:14px;border-top:1px solid var(--border);padding-top:10px}
-  .promptbox>summary{cursor:pointer;font-size:12px;color:var(--accent);list-style:none}
+  .promptbox>summary{cursor:pointer;font-size:12px;color:var(--purple);list-style:none}
   .promptbox>summary::-webkit-details-marker{display:none}
-  .promptbox pre{white-space:pre-wrap;background:var(--shade);border:1px solid var(--border);color:var(--ink);font-family:var(--mono);font-size:12px;line-height:16px;padding:12px 14px;border-radius:4px;margin:10px 0 0;overflow-x:auto}
+  .promptbox pre{white-space:pre-wrap;background:var(--hover);border:1px solid var(--border);color:var(--ink);font-family:var(--mono);font-size:12px;line-height:16px;padding:12px 14px;border-radius:4px;margin:10px 0 0;overflow-x:auto}
 
   .reversal{margin-top:22px;background:linear-gradient(90deg,var(--good-bg),#fff 45%,var(--crit-bg));border:1px solid var(--border);border-radius:4px;padding:18px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
   .reversal .chip{font-weight:700;font-size:14px;padding:6px 12px;border-radius:4px;white-space:nowrap}
-  .reversal .chip.low{background:var(--good-bg);color:var(--good)}
-  .reversal .chip.high{background:var(--crit-bg);color:var(--crit)}
+  .reversal .chip.low{background:var(--good-bg);color:var(--good)}.reversal .chip.high{background:var(--crit-bg);color:var(--crit)}
   .reversal .arw{color:var(--ink-2);font-size:20px}
-  .reversal .txt{flex:1;min-width:240px;font-size:15px;font-weight:600;color:var(--ink)}
+  .reversal .txt{flex:1;min-width:240px;font-size:15px;font-weight:600}
   .note{font-size:11.5px;color:var(--faint);margin-top:16px;line-height:1.5;max-width:90ch}
-  .banner{background:#eff6fc;border:1px solid #c7e0f4;color:#0d4f95;font-size:12.5px;padding:8px 16px;display:flex;gap:8px;align-items:center}
 </style>
 </head>
 <body>
-  <div class="appbar">
-    <div class="ico">▦</div>
-    <div class="app">Dynamics 365 <span class="sep">|</span> <span class="sub">Sales Hub</span></div>
-    <div class="grow"></div><div class="avatar">KK</div>
-  </div>
-  <div class="banner">✦ Why semantic search matters: the same account, grounded three ways. Only one reads meaning.</div>
+  <header class="hdr">
+    <button class="icobtn" aria-label="Apps"><svg class="gl s20" viewBox="0 0 20 20" fill="currentColor"><path d="M3 3h4v4H3zM8 3h4v4H8zM13 3h4v4h-4zM3 8h4v4H3zM8 8h4v4H8zM13 8h4v4h-4zM3 13h4v4H3zM8 13h4v4H8zM13 13h4v4h-4z"/></svg></button>
+    <span class="brand">Power Apps</span>
+    <div class="grow"></div>
+    <div class="env"><div class="box"><svg class="gl s16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 2l7 4v8l-7 4-7-4V6z"/></svg></div><div><div class="l1">Environment</div><div class="l2">Sales Trial</div></div></div>
+    <div class="avatar">KC</div>
+  </header>
+  <div class="aiband"><span style="color:var(--purple)">✦</span> Why semantic search matters: the same account, grounded three ways. Only one reads meaning.</div>
 
   <div class="wrap">
     <div class="crumb"><a href="/">Accounts</a> › Renewal Risk grounding</div>
-    <h1 id="h1">Renewal Risk for the account, grounded three ways</h1>
+    <h1 id="h1">Renewal Risk, grounded three ways</h1>
     <p class="sub" id="sub">Loading…</p>
-
     <div class="compare" id="compare"></div>
-
     <div class="reversal" id="reversal" style="display:none">
-      <span class="chip low">Relationship: LOW risk</span>
-      <span class="arw">➜</span>
-      <span class="chip high">Semantic: HIGH risk</span>
+      <span class="chip low">Relationship: LOW risk</span><span class="arw">➜</span><span class="chip high">Semantic: HIGH risk</span>
       <span class="txt" id="reversalTxt"></span>
     </div>
-
     <p class="note">The keyword result (0 matches) and the relationship records are real Dataverse queries. The notes are real records seeded on this account. Dataverse Search is disabled on this trial and is keyword-based anyway, so the semantic step is a meaning-match over the real note text; the team's semantic search (search_data) drops in as the retrieval engine when enabled. Citation links open the real records (sign-in required).</p>
   </div>
 
 <script>
   function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
-  function verdictClass(v){return v==="high"?"high":v==="low"?"low":"none";}
-
-  function srcHtml(s){
-    var ic = s.type==="note"?"N":s.type==="contact"?"C":"O";
-    return '<a class="src" href="'+esc(s.url)+'" target="_blank" rel="noopener">'+
-      '<span class="ic '+esc(s.type)+'">'+ic+'</span>'+
-      '<div><p class="st">'+esc(s.label)+'</p><p class="sm">'+esc(s.type)+' · '+esc(s.meta)+'</p></div>'+
-      '<span class="go">open ↗</span></a>';
-  }
-
+  function vClass(v){return v==="high"?"high":v==="low"?"low":"none";}
+  function srcHtml(s){var ic=s.type==="note"?"N":s.type==="contact"?"C":"O";
+    return '<a class="src" href="'+esc(s.url)+'" target="_blank" rel="noopener"><span class="ic '+esc(s.type)+'">'+ic+'</span><div><p class="st">'+esc(s.label)+'</p><p class="sm">'+esc(s.type)+' · '+esc(s.meta)+'</p></div><span class="go">open ↗</span></a>';}
   function tierHtml(t){
-    var win = t.key==="semantic";
-    var srcs = t.sources.length
-      ? '<p class="srclab">'+(t.key==="semantic"?"Cited notes (found by meaning)":"Records read")+'</p>'+t.sources.map(srcHtml).join("")
-      : '<p class="srclab">Records read</p><p class="none-src">Nothing surfaced.</p>';
-    return '<div class="tier'+(win?" win":"")+'">'+
-      '<div class="th"><div class="step">'+(t.key==="keyword"?"Search by exact words":t.key==="relationship"?"Follow foreign keys":"Search by meaning")+'</div>'+
-      '<div class="tt">'+(win?'<span class="spark">✦</span>':'')+esc(t.title)+'</div>'+
-      '<p class="how">'+esc(t.how)+'</p>'+
-      '<span class="found">'+esc(t.found)+'</span></div>'+
-      '<div class="tb"><div class="verdict '+verdictClass(t.verdict)+'">'+esc(t.verdict_label)+'</div>'+
-      '<div class="summary">'+esc(t.summary)+'</div>'+srcs+
-      '<details class="promptbox"><summary>▸ Show the prompt sent to the model</summary><pre>'+esc(t.prompt)+'</pre></details>'+
-      '</div></div>';
+    var win=t.key==="semantic";
+    var srcs=t.sources.length?'<p class="srclab">'+(win?"Cited notes (found by meaning)":"Records read")+'</p>'+t.sources.map(srcHtml).join(""):'<p class="srclab">Records read</p><p class="none-src">Nothing surfaced.</p>';
+    return '<div class="tier'+(win?" win":"")+'"><div class="th"><div class="step">'+(t.key==="keyword"?"Search by exact words":t.key==="relationship"?"Follow foreign keys":"Search by meaning")+'</div>'+
+      '<div class="tt">'+(win?'<span class="spark">✦</span>':'')+esc(t.title)+'</div><p class="how">'+esc(t.how)+'</p><span class="found">'+esc(t.found)+'</span></div>'+
+      '<div class="tb"><div class="verdict '+vClass(t.verdict)+'">'+esc(t.verdict_label)+'</div><div class="summary">'+esc(t.summary)+'</div>'+srcs+
+      '<details class="promptbox"><summary>▸ Show the prompt sent to the model</summary><pre>'+esc(t.prompt)+'</pre></details></div></div>';
   }
-
   async function load(){
     var d;
-    try{ d = await (await fetch("/api/semantic")).json(); }
-    catch(e){ document.getElementById("sub").textContent = "Failed to load: "+e.message; return; }
-    document.getElementById("h1").innerHTML = 'Renewal Risk for <a class="acctlink" href="'+esc(d.account_url)+'" target="_blank" rel="noopener">'+esc(d.account)+'</a>, grounded three ways';
-    document.getElementById("sub").textContent = "Same account, same question. Watch the verdict change with how you retrieve.";
-    document.getElementById("compare").innerHTML = d.tiers.map(tierHtml).join("");
-    document.getElementById("reversalTxt").textContent = d.reversal;
-    document.getElementById("reversal").style.display = "flex";
+    try{d=await (await fetch("/api/semantic")).json();}catch(e){document.getElementById("sub").textContent="Failed to load: "+e.message;return;}
+    document.getElementById("h1").innerHTML='Renewal Risk for <a class="acctlink" href="'+esc(d.account_url)+'" target="_blank" rel="noopener">'+esc(d.account)+'</a>, grounded three ways';
+    document.getElementById("sub").textContent="Same account, same question. Watch the verdict change with how you retrieve.";
+    document.getElementById("compare").innerHTML=d.tiers.map(tierHtml).join("");
+    document.getElementById("reversalTxt").textContent=d.reversal;
+    document.getElementById("reversal").style.display="flex";
   }
   load();
 </script>
