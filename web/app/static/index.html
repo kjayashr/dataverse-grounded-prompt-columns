@@ -8,13 +8,15 @@
   :root{
     --navbar:#002050; --accent:#1160B7; --accent-dk:#0d4f95; --shelf:#DFE2E8;
     --border:#e1dfdd; --border-2:#cccccc; --shade:#f3f2f1; --hover:#D7EBF9; --selected:#B1D6F0;
-    --ink:#201f1e; --ink-2:#605e5c; --faint:#a19f9d; --paper:#faf9f8; --surface:#ffffff;
+    --ink:#323130; --ink-2:#605e5c; --faint:#a19f9d; --paper:#faf9f8; --surface:#ffffff;
     --good:#107C10; --good-bg:#dff6dd; --warn:#815500; --warn-bg:#fff4ce; --crit:#a4262c; --crit-bg:#fde7e9;
     --sans:"Segoe UI","Segoe UI Web (West European)",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,sans-serif;
+    --mono:Consolas,"Courier New",Courier,monospace;
+    --r-sm:2px; --r-md:4px; --lh-300:20px; --lh-500:28px;
   }
   *{box-sizing:border-box}
   html,body{height:100%}
-  body{margin:0;font-family:var(--sans);color:var(--ink);background:var(--paper);font-size:14px;-webkit-font-smoothing:antialiased}
+  body{margin:0;font-family:var(--sans);color:var(--ink);background:var(--paper);font-size:14px;line-height:var(--lh-300);-webkit-font-smoothing:antialiased}
   a{color:var(--accent);text-decoration:none}
   a:hover{text-decoration:underline}
   button{font-family:inherit}

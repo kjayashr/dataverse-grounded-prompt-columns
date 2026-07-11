@@ -7,14 +7,15 @@
 <style>
   :root{
     --navbar:#002050; --accent:#1160B7; --shelf:#DFE2E8; --border:#e1dfdd; --border-2:#cccccc;
-    --shade:#f3f2f1; --hover:#D7EBF9; --ink:#201f1e; --ink-2:#605e5c; --faint:#a19f9d;
+    --shade:#f3f2f1; --hover:#D7EBF9; --ink:#323130; --ink-2:#605e5c; --faint:#a19f9d;
     --paper:#faf9f8; --surface:#ffffff;
     --none:#605e5c; --none-bg:#f3f2f1; --good:#107C10; --good-bg:#dff6dd;
     --warn:#815500; --warn-bg:#fff4ce; --crit:#a4262c; --crit-bg:#fde7e9;
     --sans:"Segoe UI","Segoe UI Web (West European)",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,sans-serif;
+    --mono:Consolas,"Courier New",Courier,monospace;
   }
   *{box-sizing:border-box}
-  body{margin:0;font-family:var(--sans);color:var(--ink);background:var(--paper);font-size:14px;-webkit-font-smoothing:antialiased}
+  body{margin:0;font-family:var(--sans);color:var(--ink);background:var(--paper);font-size:14px;line-height:20px;-webkit-font-smoothing:antialiased}
   a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
   .appbar{height:48px;background:var(--navbar);color:#fff;display:flex;align-items:center;padding:0 8px}
   .appbar .ico{width:40px;height:48px;display:flex;align-items:center;justify-content:center;opacity:.92}
@@ -56,7 +57,7 @@
   .promptbox{margin-top:14px;border-top:1px solid var(--border);padding-top:10px}
   .promptbox>summary{cursor:pointer;font-size:12px;color:var(--accent);list-style:none}
   .promptbox>summary::-webkit-details-marker{display:none}
-  .promptbox pre{white-space:pre-wrap;background:var(--shade);border:1px solid var(--border);color:var(--ink);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11.5px;line-height:1.5;padding:12px 14px;border-radius:4px;margin:10px 0 0;overflow-x:auto}
+  .promptbox pre{white-space:pre-wrap;background:var(--shade);border:1px solid var(--border);color:var(--ink);font-family:var(--mono);font-size:12px;line-height:16px;padding:12px 14px;border-radius:4px;margin:10px 0 0;overflow-x:auto}
 
   .reversal{margin-top:22px;background:linear-gradient(90deg,var(--good-bg),#fff 45%,var(--crit-bg));border:1px solid var(--border);border-radius:4px;padding:18px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
   .reversal .chip{font-weight:700;font-size:14px;padding:6px 12px;border-radius:4px;white-space:nowrap}
