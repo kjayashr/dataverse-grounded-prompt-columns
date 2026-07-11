@@ -51,8 +51,9 @@
   .nav a:hover{background:var(--hover)}
   .nav a.on{background:var(--hover);font-weight:600}
   .nav a.on::before{content:"";position:absolute;left:0;top:6px;height:24px;width:3px;border-radius:0 2px 2px 0;background:var(--purple)}
-  .nav a .gl{color:var(--ink-2)}
+  .nav a .gl{color:var(--ink-2);width:20px;height:20px}
   .nav a.on .gl{color:var(--purple)}
+  .navsep{height:1px;background:var(--border);margin:8px 14px}
   .sidebar .pp{margin-top:24px;display:flex;align-items:center;gap:12px;padding:8px 16px;font-size:14px}
   .sidebar .pp .box{width:24px;height:24px;border-radius:4px;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center}
 
@@ -193,9 +194,27 @@
   </aside>
 
 <script>
-  var NAV = [["Home",0],["Create",0],["Learn",0],["Apps",0],["AI hub",0],["Tables",1],["Flows",0],["Solutions",0],["Agents",0],["Choices",0]];
+  var IC = {
+    home:'<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/>',
+    plus:'<path d="M5 12h14M12 5v14"/>',
+    book:'<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>',
+    clip:'<rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4M12 16h4M8 11h.01M8 16h.01"/>',
+    apps:'<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>',
+    ai:'<path d="M9 6a3 3 0 0 0-3 3 2.5 2.5 0 0 0-1 4.8A3 3 0 0 0 8 17a3 3 0 0 0 4 .6 3 3 0 0 0 4-.6 3 3 0 0 0 3-3.2A2.5 2.5 0 0 0 18 9a3 3 0 0 0-3-3 3 3 0 0 0-3-1 3 3 0 0 0-3 1z"/><path d="M12 5v13"/>',
+    table:'<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/>',
+    flow:'<circle cx="6" cy="6" r="2.4"/><circle cx="18" cy="18" r="2.4"/><path d="M8.4 6H14a4 4 0 0 1 4 4v5.6"/>',
+    pkg:'<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7 12 12l8.7-5"/><path d="M12 22V12"/>',
+    globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a13 13 0 0 1 0 18 13 13 0 0 1 0-18"/>',
+    bot:'<path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2M20 14h2M15 13v2M9 13v2"/>',
+    gauge:'<path d="M12 14l3.5-3.5"/><path d="M4.5 17a8 8 0 1 1 15 0"/>',
+    checks:'<path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8M13 12h8M13 18h8"/>',
+    more:'<circle cx="5" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.4" fill="currentColor" stroke="none"/>'
+  };
+  var NAV = [["Home","home"],["Create","plus"],["Learn","book"],["Plans","clip"],["Apps","apps"],["AI hub","ai"],["--"],
+             ["Tables","table",1],["Flows","flow"],["Solutions","pkg"],["Websites","globe"],["Agents","bot"],["Monitor","gauge"],["Choices","checks"],["More","more"]];
   document.getElementById("nav").innerHTML = NAV.map(function(n){
-    return '<a href="#" class="'+(n[1]?"on":"")+'"><svg class="gl" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="14" height="14" rx="2"/></svg><span>'+n[0]+'</span></a>';
+    if(n[0]==="--") return '<div class="navsep"></div>';
+    return '<a href="#" class="'+(n[2]?"on":"")+'"><svg class="gl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">'+IC[n[1]]+'</svg><span>'+n[0]+'</span></a>';
   }).join("");
 
   var mode="grounded", data=[];

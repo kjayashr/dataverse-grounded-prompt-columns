@@ -23,6 +23,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.middleware("http")
+async def no_cache(request, call_next):
+    resp = await call_next(request)
+    resp.headers["Cache-Control"] = "no-cache, must-revalidate"
+    return resp
+
+
 app.include_router(health.router)
 app.include_router(accounts.router)
 app.include_router(semantic.router)
