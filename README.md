@@ -1,30 +1,119 @@
 # Grounded Prompt Columns
 
-A prototype that makes a Microsoft Dataverse **prompt column** *grounded*, *cited*,
-and *cheap to keep fresh*, and proves the idea end to end **with no environment and
-no dependencies**.
+Give a Microsoft Dataverse **prompt column** a second grounding option. Instead of
+seeing only its own row, the column can call the **Dataverse MCP tools** at run time
+to search and query the whole org, and it **cites** the records it used.
 
-> **Disclosure.** This is an external prototype that *emulates* the proposed native
-> behavior using supported, public building blocks (Dataverse related-record
-> retrieval, the AI Builder `Predict` message, Web API write-back). It is not a
-> change to the shipping Prompt Columns feature. It exists to demonstrate customer
-> value and de-risk the design. Where each part maps to a proposed native feature
-> is noted below.
+Opt-in and non-breaking: **This record (Prompt Builder)** stays the default;
+**Your Dataverse (AppIQ)** is the advanced mode.
 
-## The idea in one breath
+> **Disclosure.** This repo is an external prototype that *emulates* the proposed
+> native behavior with supported, public building blocks (Dataverse retrieval, an
+> LLM for generation, Web API write-back). It is not a change to the shipping Prompt
+> Columns feature. It exists to show customer value and de-risk the design.
 
-A prompt column today can only see **its own row**, so its answers are generic, have
-no sources, and go stale. This prototype lets the column:
+## The two grounding options
 
-- **Ground** on the related records it is allowed to see (cases, opportunities,
-  activities, contacts, files), not just one row.
-- **Cite** the exact records it used, so the answer is trustworthy.
-- **Refresh cheaply**: when a record changes, only the few answers that used it are
-  recomputed. The rest are skipped for free.
+```mermaid
+flowchart LR
+  PC["Prompt column<br/>(AI Builder Prompt)"] --> G{"Ground on"}
+  G -->|"default"| R["This record<br/>(Prompt Builder)"]
+  G -->|"opt-in, advanced"| D["Your Dataverse<br/>(AppIQ MCP tools)"]
+  R --> RO["The row + related tables<br/>a maker pre-wires (Add knowledge)"]
+  D --> DO["Searches & queries all of Dataverse<br/>at run time, structured + unstructured,<br/>and cites the records used"]
+```
 
-## Quickstart (30 seconds, no install)
+Today a prompt column grounds on its row plus any related tables a maker wires up in
+advance. The advanced option adds three things a fixed, maker-wired column **cannot**
+do:
 
-Requires only Python 3.10+. No pip install, no org.
+1. **Run-time tool-calling**, the model decides what to fetch per row (not fixed at design time).
+2. **Semantic search** over unstructured notes, emails, and files (not just attribute filters).
+3. **Relational query and aggregation** across tables (JOIN, GROUP BY, unrelated tables).
+
+The output surface is identical to today: a persisted value, a `_Sources` citation
+set, and a status. Nothing downstream changes.
+
+## How a grounded column runs, per row
+
+```mermaid
+sequenceDiagram
+  participant Col as Prompt column (per row)
+  participant MCP as Dataverse MCP tools
+  participant DV as Dataverse
+  participant LLM as Model
+  Col->>MCP: retrieve what this row needs
+  MCP->>DV: search_data + read_query (read-only, user-scoped)
+  DV-->>MCP: notes, emails, records
+  MCP-->>Col: grounding context
+  Col->>LLM: instruction + grounding
+  LLM-->>Col: row-specific answer
+  Col->>Col: persist value + _Sources citations
+```
+
+**Retrieve → Reason → Cite.** Each row gets its own answer; "your Dataverse" is the
+grounding it retrieves from, not one shared org-wide result.
+
+## The Dataverse MCP tools
+
+Read-only tools exposed to a prompt column:
+
+| Tool | What it does |
+| --- | --- |
+| `search_data` | Semantic search over notes, emails, and files (needs Dataverse search on) |
+| `search` | Keyword search across records and metadata |
+| `read_query` | Relational query, JOINs, and aggregates (SELECT) |
+| `fetch` | Retrieve a full record to cite |
+| `describe_table` | Inspect a table's schema, columns, relationships |
+| `list_tables` | Discover the tables in the environment |
+
+The write and delete tools (`create_record`, `update_record`, `delete_record`,
+`create_table`, `update_table`, `delete_table`) are **never** exposed to a prompt
+column. Retrieval is read-only and trimmed to what the signed-in user may see.
+
+## Architecture
+
+```mermaid
+flowchart TB
+  subgraph PA["Power Apps"]
+    Grid["Model-driven grid"] --> Field["Prompt column<br/>value + _Sources"]
+  end
+  Field --> API["/api/promptcol/run"]
+  subgraph SVC["Web service (FastAPI)"]
+    API --> Loop["retrieve → reason → cite"]
+  end
+  Loop --> Tools["Dataverse MCP<br/>read tools"]
+  Loop --> Model["Azure OpenAI<br/>(gpt-4.1)"]
+  Tools --> DV[("Dataverse")]
+```
+
+In the live web demo, `promptcol.py` runs the per-row loop: it retrieves the relevant
+records (semantic search over notes plus a query over related records), sends the
+instruction and grounding to the model, and returns the answer with real, clickable
+citations. On the trial org, Dataverse search (`search_data`) is disabled, so the
+semantic step is an LLM meaning-match over the real records; swapping in live
+`search_data` is a single seam.
+
+## Staying fresh
+
+```mermaid
+flowchart LR
+  C["A cited or linked<br/>record changes"] --> K["Column knows its dependencies<br/>(it cited them)"]
+  K --> Ref["Recompute only the<br/>affected rows"]
+  K -.->|"maker option"| Sch["Scheduled refresh"]
+  K -.->|"maker option"| Alw["Always fresh"]
+```
+
+Because each value cites the records it used, the column knows its own dependencies.
+The default is **refresh on change**: when a cited or associated record updates, only
+that row recomputes. The maker can instead choose **always fresh** or a **schedule**.
+Only affected rows recompute, never the whole table for no reason.
+
+## Run it
+
+### CLI prototype (no install, no org)
+
+Requires only Python 3.10+.
 
 ```bash
 python3 cli.py demo                # grounded, cited answers for every account
@@ -35,106 +124,58 @@ python3 cli.py secure contoso      # same cell, full vs restricted permissions
 python3 cli.py refresh             # backfill, change one record, refresh cheaply
 ```
 
-### What you will see
+### Web demo (Power Apps themed)
 
-`compare contoso` puts the two side by side:
+`web/` is a FastAPI service (Python 3.12) that serves a Power Apps themed UI
+(command-bar purple `#742774`, Segoe UI) and the grounded Renewal Risk column.
 
-```
-BASELINE (same row only), no sources:
-   Contoso Ltd is a manufacturing account renewing Sep 30. Standard
-   renewal risk applies; recommend timely engagement.
-
-GROUNDED [HIGH], 7 cited sources:
-   High risk. 3 open cases (2 high-severity), a stalled $120,000 deal
-   untouched for 45 days, the VP Ops champion has left, ...
-```
-
-`refresh` shows the cost story: a new case at Contoso recomputes **1** cell and
-skips 5, instead of regenerating all 6.
-
-`secure contoso` shows the oversharing guarantee: a restricted user grounds on
-fewer records and gets a different, less-alarming answer, because the column can
-only use what that user may read.
-
-## How it maps to the proposal
-
-| Part of this prototype | Proposed native feature |
-| --- | --- |
-| `ground()` security-trimmed retrieval | **F1** grounding as a knowledge source |
-| `_Sources` citation payload (`citations.py`) | **F2** persisted citations |
-| `refresh.incremental_refresh` + reverse index | **F3** backfill and incremental refresh |
-| `cost.py` estimate and budget cap in `enrich_view` | **F5** cost transparency and budget |
-| `RESTRICTED` principal in `secure` | oversharing guardrail |
-
-## Live mode (against a real Dataverse org)
-
-Live mode swaps mock data for real Dataverse retrieval and calls the actual AI
-Builder prompt via the `Predict` message.
-
-```bash
-pip install azure-identity
-az login                                   # or an interactive browser sign-in
-export DATAVERSE_URL="https://YOURORG.crm.dynamics.com"
-export PROMPT_MODEL_NAME="Renewal Risk Summary"
-# then run the live path (see examples/ and src/gpc/client.py)
-```
-
-Prerequisites in the org: a Dataverse database, the Copilot / AI Prompts feature
-on, and a licensed maker account. The `Predict` payload shape is isolated in
-`client.py` so it is the only place to validate against your org.
-
-## Project layout
-
-```
-cli.py                 command-line demo
-src/gpc/
-  mockdata.py          sample Dynamics 365 Sales data (mock mode)
-  ground.py            F1: security-trimmed retrieval + fingerprint
-  generate.py          baseline vs grounded generation (mock + live)
-  citations.py         F2: persisted sources + reverse index
-  cost.py              F5: credit estimation
-  enrich.py            orchestrator + backfill + budget cap
-  refresh.py           F3: incremental, change-only refresh
-  client.py            live Dataverse client (Predict, query, update)
-  config.py            live-mode config
-examples/
-  grounded_prompt_column.py
-```
-
-## Hosting: Azure Container Apps + a Dynamics-themed UI
-
-A deployable web version lives in `web/` (FastAPI + uvicorn, Python 3.12, matching
-the team's container convention: single-stage `python:3.12-slim`, non-root, port
-8000). It serves a **Dynamics 365 Sales Hub themed UI** (Unified Interface theme:
-`#002050` navbar, `#1160B7` accent, Segoe UI) and a `/api/accounts` endpoint.
-
-- **Mock mode** (default): serves the captured real-data snapshot, no credentials.
-- **Live mode** (`GPC_MODE=live`): queries Dataverse via a client-credentials app
-  registration (needs a Dataverse application user + security role) and returns
-  fresh grounded, cited records. Citations deep-link to the real records.
-
-Run locally:
+- The grid shows the column grounded and cited on every row.
+- The **Edit prompt** pop-up shows both grounding options; on **Your Dataverse
+  (AppIQ)** the MCP tools are selectable (Auto / Choose) and the **Test** runs live.
+- **Mock mode** (default) needs no credentials. The live **Test** uses Azure OpenAI
+  (endpoint and key supplied via env / Container App secret, never committed).
 
 ```bash
 cd web
 python -m venv .venv && .venv/bin/pip install -r requirements.txt
-.venv/bin/uvicorn app.main:app --port 8000    # http://127.0.0.1:8000
+AOAI_ENDPOINT=https://YOURAOAI.openai.azure.com/ AOAI_KEY=... AOAI_DEPLOYMENT=gpt-4.1 \
+  .venv/bin/uvicorn app.main:app --port 8000       # http://127.0.0.1:8000
 ```
 
 Deploy to Azure Container Apps (build in ACR, imperative `az containerapp`):
 
 ```bash
-cp deploy/.env.example deploy/.env            # set GPC_MODE, DATAVERSE_URL, AZURE_* for live
-RG=gpc-rg ACR=youracr ENVNAME=gpc-env deploy/deploy.sh
+az acr build -r YOURACR -t gpc-web:latest web
+az containerapp update -n gpc-web -g YOUR_RG --image YOURACR.azurecr.io/gpc-web:latest \
+  --set-env-vars AOAI_ENDPOINT=... AOAI_DEPLOYMENT=gpt-4.1 AOAI_KEY=secretref:aoai-key
 ```
 
-Note: the team's repos have no prior Entra/managed-identity precedent, so live
-mode introduces `azure-identity` (client-credentials). For real per-user security
-trimming, front it with Entra Easy Auth + on-behalf-of so each viewer's own
-permissions apply.
+## Project layout
+
+```
+cli.py                      command-line demo
+src/gpc/                    the mock-runnable prototype (ground / generate / cite / refresh)
+web/app/
+  promptcol.py              per-row retrieve → reason → cite via the Dataverse MCP read tools
+  llm.py                    Azure OpenAI client for the live Test
+  routers/promptcol.py      /api/promptcol/run and /status (the MCP tool catalog)
+  dataverse.py, records.py  live Dataverse retrieval + grounding and citations
+  static/index.html         the Power Apps grid + Edit-prompt pop-up (both grounding options)
+docs/
+  architecture.md           design, the moat, and diagrams
+  webpage-copy.md           the proposal website copy
+```
+
+## How it maps to the proposal
+
+| In this repo | Proposed native feature |
+| --- | --- |
+| `promptcol.py` run-time MCP tool-calling | Advanced grounding option on the prompt column |
+| `_Sources` citations (`citations.py`, live sources) | Persisted citations |
+| `refresh.py` change-only recompute | On-change / scheduled freshness |
+| Read-only MCP tool set, user-scoped retrieval | Read-only, security-trimmed guardrail |
 
 ## Status
 
-Prototype. Mock mode is fully runnable today. Live mode is wired against public
-APIs and is validated per environment. See the companion product one-pager and
-execution plan for the full proposal.
+Prototype. The CLI mock mode is fully runnable today; the web demo runs live against
+Azure OpenAI with real cited records. See `docs/architecture.md` for the design.
